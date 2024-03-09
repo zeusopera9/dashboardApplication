@@ -15,11 +15,6 @@ const sidebarItems = [
         icon: <MdDashboard/>
       },
       {
-        title: "Users",
-        path: "/dashboard/users",
-        icon: <MdSupervisedUserCircle/>
-      },
-      {
         title: "Transactions",
         path: "/dashboard/transactions",
         icon: <MdAttachMoney/>
