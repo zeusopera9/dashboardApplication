@@ -1,4 +1,4 @@
-import styles from '@app/ui/dashboard/users/singleUser/singleUser.module.css'
+import styles from '@/app/ui/dashboard/family/singleUser/singleUser.module.css'
 
 const singleUserPage = () =>{
     return(

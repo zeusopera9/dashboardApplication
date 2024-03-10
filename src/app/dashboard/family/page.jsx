@@ -1,8 +1,41 @@
-import styles from "../../ui/dashboard/users/users.module.css"
+"use client"
+
+import styles from "../../ui/dashboard/family/users.module.css"
 import Search from '../../ui/dashboard/search/Search'
 import Link from 'next/link'
+import { db } from "@/app/firebase/config";
+import { collection, getDocs } from "firebase/firestore";
+import React, {useEffect, useState} from "react";
+
+async function fetchDataFromFirestore() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "User"));
+    const data = [];
+
+    querySnapshot.forEach((doc) => {
+      if (doc.data().familyCode === "STM") {
+        data.push({ id: doc.id, ...doc.data() });
+      }
+    });
+    return data;
+  } catch (error) {
+    console.error("Error fetching data from Firestore:", error);
+    return [];
+  }
+}
+
 
 const UsersPage = () => {
+  const [userData, setUserData] = useState([]);
+
+  useEffect(()=>{
+    async function fetchData(){
+      const data = await fetchDataFromFirestore();
+      setUserData(data);
+    }
+    fetchData();
+  }, []);
+
   return (
     <div className={styles.container}>
       <div className={styles.top}>
@@ -21,48 +54,23 @@ const UsersPage = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Yakshit</td>
-            <td>Poojary</td>
-            <td>yakshit</td>
-            <td>yakshit@gmail.com</td>
-            <td>
-              <div className={styles.buttons}>
-                <Link href="/">
-                  <button className={`${styles.button} ${styles.view}`}>View</button>
-                </Link>
-                  <button className={`${styles.button} ${styles.delete}`}>Delete</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Zaidali</td>
-            <td>Merchant</td>
-            <td>zaid</td>
-            <td>zaid@gmail.com</td>
-            <td>
-              <div className={styles.buttons}>
-                <Link href="/">
-                  <button className={`${styles.button} ${styles.view}`}>View</button>
-                </Link>
-                  <button className={`${styles.button} ${styles.delete}`}>Delete</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Shubraja</td>
-            <td>Lalith</td>
-            <td>shubja</td>
-            <td>shubraja@gmail.com</td>
-            <td>
-              <div className={styles.buttons}>
-                <Link href="/">
-                  <button className={`${styles.button} ${styles.view}`}>View</button>
-                </Link>
-                  <button className={`${styles.button} ${styles.delete}`}>Delete</button>
-              </div>
-            </td>
-          </tr>
+
+          {userData.map((user)=>(
+            <tr key={user.id}>
+              <td>{user.firstName}</td>
+              <td>{user.lastName}</td>
+              <td>{user.username}</td>
+              <td>{user.email}</td>
+              <td>
+                <div className={styles.buttons}>
+                  <Link href="/">
+                    <button className={`${styles.button} ${styles.view}`}>View</button>
+                  </Link>
+                    <button className={`${styles.button} ${styles.delete}`}>Delete</button>
+                </div>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
