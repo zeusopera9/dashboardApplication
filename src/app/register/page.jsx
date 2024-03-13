@@ -1,21 +1,29 @@
 "use client"
-import styles from '@/app/ui/login/login.module.css';
+import styles from '@/app/ui/signup/signup.module.css';
 import {useState} from 'react';
 import {useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth';
 import {auth} from '@/app/firebase/config';
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
+  const router = useRouter();
 
-  const handleLogin = async (event) => {
+  const handleRegister = async (event) => {
     event.preventDefault();
     try{
       const res = await createUserWithEmailAndPassword(email,password);
       console.log({res});
       setEmail('');
       setPassword('');
+      if(res){
+        const uid = res.user.uid;
+        sessionStorage.setItem('user', true);
+        sessionStorage.setItem('uid', uid);
+        router.push('/addDetails');
+      }
     }catch(e){
       console.error(e);
     }
@@ -23,8 +31,8 @@ const LoginPage = () => {
 
   return (
     <div className={styles.container}>
-      <form onSubmit={handleLogin} className={styles.form}>
-        <h1 className={styles.title}>Sign In With your Account</h1>
+      <form onSubmit={handleRegister} className={styles.form}>
+        <h1 className={styles.title}>Sign Up With your Account</h1>
         <input 
           type="text" 
           name="email" 
@@ -41,7 +49,7 @@ const LoginPage = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button type='submit'>Login</button>
+        <button type='submit'>Register</button>
       </form>
     </div>
   )

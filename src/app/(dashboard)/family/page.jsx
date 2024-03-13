@@ -7,12 +7,12 @@ import { db } from "@/app/firebase/config";
 import { collection, getDocs } from "firebase/firestore";
 import React, {useEffect, useState} from "react";
 
-async function fetchDataFromFirestore() {
+async function fetchFamilyFromFirestore() {
   try {
-    const querySnapshot = await getDocs(collection(db, "User"));
+    const userDocs = await getDocs(collection(db, "User"));
     const data = [];
 
-    querySnapshot.forEach((doc) => {
+    userDocs.forEach((doc) => {
       if (doc.data().familyCode === "STM") {
         data.push({ id: doc.id, ...doc.data() });
       }
@@ -30,7 +30,7 @@ const UsersPage = () => {
 
   useEffect(()=>{
     async function fetchData(){
-      const data = await fetchDataFromFirestore();
+      const data = await fetchFamilyFromFirestore();
       setUserData(data);
     }
     fetchData();
@@ -40,7 +40,7 @@ const UsersPage = () => {
     <div className={styles.container}>
       <div className={styles.top}>
         <Search placeholder={"Search for a user"}/>
-        <Link href="/dashboard/family/add">
+        <Link href="/family/add">
           <button className={styles.addButton}>Add New Member</button>
         </Link>
       </div>

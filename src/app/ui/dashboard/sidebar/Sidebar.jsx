@@ -1,9 +1,13 @@
-import React from 'react'
-import styles from "./sidebar.module.css"
-import { MdAnalytics, MdAttachMoney, MdDashboard, MdHelpCenter, MdLogout, MdOutlineSettings, MdSupervisedUserCircle, MdWork } from 'react-icons/md'
+"use client"
+
+import React from 'react';
+import styles from "./sidebar.module.css";
+import { MdAnalytics, MdAttachMoney, MdDashboard, MdHelpCenter, MdLogout, MdOutlineSettings } from 'react-icons/md';
 import { GiFamilyHouse } from "react-icons/gi";
-import MenuLink from './menuLink/menuLink'
+import MenuLink from './menuLink/menuLink';
 import Image from 'next/image';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/app/firebase/config';
 
 const sidebarItems = [
   {
@@ -25,18 +29,13 @@ const sidebarItems = [
     title: "Analytics",
     list:[
       {
-        title: "Revenue",
-        path: "/dashboard/revenue",
-        icon: <MdWork/>
-      },
-      {
         title: "Reports",
         path: "/dashboard/reports",
         icon: <MdAnalytics/>
       },
       {
         title: "Family",
-        path: "/dashboard/family",
+        path: "/family",
         icon: <GiFamilyHouse />
       },
     ],
@@ -56,9 +55,18 @@ const sidebarItems = [
       },
     ],
   },
-]
+];
 
 const Sidebar = () => {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      sessionStorage.removeItem('user');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.user}>
@@ -70,21 +78,21 @@ const Sidebar = () => {
       </div>
 
       <ul className={styles.list}>
-        {sidebarItems.map(cat=>(
+        {sidebarItems.map(cat => (
           <li key={cat.title}>
             <span className={styles.cat}>{cat.title}</span>
-            {cat.list.map(item=>(
+            {cat.list.map(item => (
               <MenuLink item={item} key={item.title}/>
             ))}
           </li>
         ))}
       </ul>
-      <button className={styles.logout}>
+      <button className={styles.logout} onClick={handleLogout}>
         <MdLogout/>
         Log Out
-        </button>
+      </button>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

@@ -1,72 +1,115 @@
-import React from 'react'
+"use client"
+import { db } from "@/app/firebase/config";
+import { collection, getDocs, getDoc, doc } from "firebase/firestore";
+import React, { useEffect, useState, useMemo } from "react";
 import styles from './transactions.module.css'
 
+async function fetchTransactionsFromFirestore() {
+    try {
+      const expenseDocs = await getDocs(collection(db, "Expense"));
+      const data = [];
+  
+      for (const expenseDoc of expenseDocs.docs){ 
+        const expenseData = expenseDoc.data();
+        const userDocRef = doc(db, "User", expenseData.uid); 
+        const userDoc = await getDoc(userDocRef);
+  
+        const transaction = {
+          id: expenseData.uid,
+          amount: expenseData.amount,
+          category: expenseData.category,
+          date:  expenseData.date,
+          firstName: userDoc.data().firstName, 
+          lastName: userDoc.data().lastName
+        };
+        data.push(transaction);
+    }
+  
+      return data;
+    } catch(error) {
+      console.error("Error fetching data from Firestore:", error);
+      throw error; 
+    }
+  }
+  
+
 const Transactions = () => {
-  return (
-    <div className={styles.container}>
+    const getCategoryClassName = category => {
+        switch (category.toLowerCase()) {
+            case 'food':
+                return styles.food;
+            case 'groceries':
+                return styles.groceries;
+            case 'health care':
+                return styles.health;
+            case 'housing':
+                return styles.housing;
+            case 'personal care':
+                return styles.personal;
+            case 'transportation':
+                return styles.transportation;
+            default:
+                return '';
+        }
+    };
+      
+    const [transactions, setTransactions] = useState([]);
+
+    useEffect(() => {
+        async function fetchData() {
+        try {
+            const data = await fetchTransactionsFromFirestore();
+            setTransactions(data);
+            console.log(data);
+        }catch(error) {
+            console.error("Error fetching transactions:", error);
+        }
+        }
+        fetchData();
+    }, []);
+
+    const formattedTransactions = useMemo(() => {
+        return transactions.map(transaction => {
+            const transactionDate = transaction.date.toDate(); 
+            const formattedDate = transactionDate.toLocaleDateString();
+            return {
+                ...transaction,
+                name: `${transaction.firstName} ${transaction.lastName}`,
+                formattedDate: formattedDate
+            };
+        });
+    }, [transactions]);
+  
+
+    return (
+        <div className={styles.container}>
         <h2 className={styles.title}>Latest Transactions</h2>
         <table className={styles.table}>
             <thead>
-                <tr>
-                    <td>Name</td>
-                    <td>Date</td>
-                    <td>Amount</td>
-                    <td>Category</td>
-                </tr>
+            <tr>
+                <td>Name</td>
+                <td>Date</td>
+                <td>Amount</td>
+                <td>Category</td>
+            </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><div className={styles.user}>Yakshit Poojary</div></td>
-                    <td>08-03-2024</td>
-                    <td>Rs 1819</td>
+            {formattedTransactions.map(transaction => (
+                <tr key={transaction.id}>
+                    <td>{transaction.name}</td>
+                    <td>{transaction.formattedDate}</td>
+                    <td>Rs {transaction.amount}</td>
                     <td>
-                        <span className={`${styles.status} ${styles.food}`}>Food</span>
+                    <span className={`${styles.status} ${getCategoryClassName(transaction.category)}`}>
+                        {transaction.category}
+                    </span>
                     </td>
                 </tr>
-                <tr>
-                    <td><div className={styles.user}>Zaidali Merchant</div></td>
-                    <td>08-03-2024</td>
-                    <td>Rs 1919</td>
-                    <td>
-                        <span className={`${styles.status} ${styles.groceries}`}>Groceries</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><div className={styles.user}>Shubraja Lalith</div></td>
-                    <td>08-03-2024</td>
-                    <td>Rs 1011</td>
-                    <td>
-                        <span className={`${styles.status} ${styles.health}`}>Health</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><div className={styles.user}>Yakshit Poojary</div></td>
-                    <td>08-03-2024</td>
-                    <td>Rs 1111</td>
-                    <td>
-                        <span className={`${styles.status} ${styles.housing}`}>Housing and Bills</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><div className={styles.user}>Zaidali Merchant</div></td>
-                    <td>08-03-2024</td>
-                    <td>Rs 9191</td>
-                    <td>
-                        <span className={`${styles.status} ${styles.personal}`}>Personal Care</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><div className={styles.user}>Shubraja Lalith</div></td>
-                    <td>08-03-2024</td>
-                    <td>Rs 9191</td>
-                    <td>
-                        <span className={`${styles.status} ${styles.transportation}`}>Transportation</span>
-                    </td>
-                </tr>
+            ))}
             </tbody>
         </table>
-    </div>
-  )
-}
+        </div>
+    );
+};
 
-export default Transactions
+export default Transactions;
