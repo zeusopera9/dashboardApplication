@@ -13,16 +13,19 @@ async function fetchTransactionsFromFirestore() {
         const expenseData = expenseDoc.data();
         const userDocRef = doc(db, "User", expenseData.uid); 
         const userDoc = await getDoc(userDocRef);
+
+        if(userDoc.data().familyCode == sessionStorage.getItem('familyCode')){
+            const transaction = {
+              id: expenseData.uid,
+              amount: expenseData.amount,
+              category: expenseData.category,
+              date:  expenseData.date,
+              firstName: userDoc.data().firstName, 
+              lastName: userDoc.data().lastName
+            };
+            data.push(transaction);
+        }
   
-        const transaction = {
-          id: expenseData.uid,
-          amount: expenseData.amount,
-          category: expenseData.category,
-          date:  expenseData.date,
-          firstName: userDoc.data().firstName, 
-          lastName: userDoc.data().lastName
-        };
-        data.push(transaction);
     }
   
       return data;
@@ -57,13 +60,12 @@ const Transactions = () => {
 
     useEffect(() => {
         async function fetchData() {
-        try {
-            const data = await fetchTransactionsFromFirestore();
-            setTransactions(data);
-            console.log(data);
-        }catch(error) {
-            console.error("Error fetching transactions:", error);
-        }
+            try {
+                const data = await fetchTransactionsFromFirestore();
+                setTransactions(data);
+            }catch(error) {
+                console.error("Error fetching transactions:", error);
+            }
         }
         fetchData();
     }, []);

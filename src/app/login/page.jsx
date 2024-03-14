@@ -15,7 +15,6 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (user) {
-      console.log({ user });
       router.push("/");
     }
   }, [user, router]);
@@ -25,7 +24,6 @@ const LoginPage = () => {
     event.preventDefault();
     try{
       const res = await signInWithEmailAndPassword(email,password);
-      console.log({res});
       if(res){
         const uid = res.user.uid;
         sessionStorage.setItem('user', true);

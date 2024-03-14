@@ -15,7 +15,6 @@ const LoginPage = () => {
     event.preventDefault();
     try{
       const res = await createUserWithEmailAndPassword(email,password);
-      console.log({res});
       setEmail('');
       setPassword('');
       if(res){

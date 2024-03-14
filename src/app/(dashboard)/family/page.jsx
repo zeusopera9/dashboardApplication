@@ -7,13 +7,13 @@ import { db } from "@/app/firebase/config";
 import { collection, getDocs } from "firebase/firestore";
 import React, {useEffect, useState} from "react";
 
-async function fetchFamilyFromFirestore() {
+async function fetchFamilyFromFirestore(familyCode) {
   try {
     const userDocs = await getDocs(collection(db, "User"));
     const data = [];
 
     userDocs.forEach((doc) => {
-      if (doc.data().familyCode === "STM") {
+      if (doc.data().familyCode === familyCode) {
         data.push({ id: doc.id, ...doc.data() });
       }
     });
@@ -24,13 +24,14 @@ async function fetchFamilyFromFirestore() {
   }
 }
 
-
 const UsersPage = () => {
   const [userData, setUserData] = useState([]);
+  const head = sessionStorage.getItem('head');
 
   useEffect(()=>{
+    const familyCode = sessionStorage.getItem("familyCode");
     async function fetchData(){
-      const data = await fetchFamilyFromFirestore();
+      const data = await fetchFamilyFromFirestore(familyCode);
       setUserData(data);
     }
     fetchData();
@@ -40,9 +41,6 @@ const UsersPage = () => {
     <div className={styles.container}>
       <div className={styles.top}>
         <Search placeholder={"Search for a user"}/>
-        <Link href="/family/add">
-          <button className={styles.addButton}>Add New Member</button>
-        </Link>
       </div>
       <table className={styles.table}>
         <thead>
@@ -66,7 +64,9 @@ const UsersPage = () => {
                   <Link href="/">
                     <button className={`${styles.button} ${styles.view}`}>View</button>
                   </Link>
+                  {head === 'true' && (
                     <button className={`${styles.button} ${styles.delete}`}>Delete</button>
+                  )}
                 </div>
               </td>
             </tr>

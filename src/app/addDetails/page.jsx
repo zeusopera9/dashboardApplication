@@ -1,26 +1,45 @@
 "use client"
 import styles from '@/app/ui/dashboard/family/addUser/addUser.module.css'
-import { addDoc, collection } from 'firebase/firestore'
-import { useState } from 'react';
-import { db } from '@/app/firebase/config';
+import { setDoc, collection, getDocs, getDoc, doc } from 'firebase/firestore'
+import { useEffect, useState } from 'react';
+import { db,auth } from '@/app/firebase/config';
 import { useRouter } from 'next/navigation';
+import { useAuthState } from "react-firebase-hooks/auth"
 
-async function addUserToFamily(firstName,lastName,username,email,password,familyCode){
-  try{
-    const docRef = await addDoc(collection(db,"User"),{
+async function addUserToFamily(firstName,lastName,username,email,password,familyCode,head){
+  try {
+    const userDocRef = doc(db, 'User', sessionStorage.getItem('uid'));
+    await setDoc(userDocRef, {
       firstName: firstName,
       lastName: lastName,
       email: email,
       password: password,
       username: username,
       familyCode: familyCode,
-      head: false,
+      head: head,
     });
-    console.log("Document written with ID: ", docRef.id);
+    console.log("Document written with ID: ", sessionStorage.getItem('uid'));
     return true;
-  }catch(error){
+  } catch (error) {
     console.error("Error adding document: ", error);
     return false;
+  }
+}
+
+async function checkHead(familyCode){
+  try{
+    const userDocs = await getDocs(collection(db,'User'));
+
+    for(const userDoc of userDocs.docs){
+      const userData = userDoc.data();
+      if(userData.familyCode == familyCode){
+        return false
+      }
+    }
+    return true;
+  }catch(error){
+    console.error("Error checking for head", error);
+    return false
   }
 }
 
@@ -36,7 +55,8 @@ const AddUser = () => {
 
   const handleSubmit = async(event) =>{
     event.preventDefault();
-    const added = await addUserToFamily(firstName,lastName,username,email,password,familyCode);
+    const head = await checkHead(familyCode);
+    const added = await addUserToFamily(firstName,lastName,username,email,password,familyCode,head);
     if(added){
       alert("Data added to firestore");
       router.push("/");
@@ -51,6 +71,13 @@ const AddUser = () => {
       console.log("Boo you fail");
     }
   }
+
+  // const [user] = useAuthState(auth);
+  // useEffect(()=>{
+  //   if(user){
+  //     router.push("/");
+  //   }
+  // },[user]);
 
   return (
     <div className={styles.container}>

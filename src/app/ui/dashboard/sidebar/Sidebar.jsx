@@ -1,6 +1,5 @@
 "use client"
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from "./sidebar.module.css";
 import { MdAnalytics, MdAttachMoney, MdDashboard, MdHelpCenter, MdLogout, MdOutlineSettings } from 'react-icons/md';
 import { GiFamilyHouse } from "react-icons/gi";
@@ -8,6 +7,7 @@ import MenuLink from './menuLink/menuLink';
 import Image from 'next/image';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/app/firebase/config';
+import { useRouter } from 'next/navigation';
 
 const sidebarItems = [
   {
@@ -15,7 +15,7 @@ const sidebarItems = [
     list:[
       {
         title: "Dashboard",
-        path: "/dashboard",
+        path: "/",
         icon: <MdDashboard/>
       },
       {
@@ -57,11 +57,35 @@ const sidebarItems = [
   },
 ];
 
+
 const Sidebar = () => {
+  const router = useRouter();
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const firstName = sessionStorage.getItem('firstName');
+        const lastName = sessionStorage.getItem('lastName');
+        const familyCode = sessionStorage.getItem('familyCode');
+
+        setUserData({ firstName, lastName, familyCode });
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchData();
+    return () => {
+    
+    };
+  }, []); 
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      sessionStorage.removeItem('user');
+      sessionStorage.clear();
+      router.push("/login");
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -69,13 +93,14 @@ const Sidebar = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.user}>
-        <Image className={styles.userImage} src="/noavatar.png" alt="" width="50" height="50"/>
-        <div className={styles.userDetail}>
-          <span className={styles.username}>Yakshit Poojary</span>
-          <span className={styles.userTitle}>Servicing The Micro</span>
+      {userData && (
+        <div className={styles.user}>
+          <div className={styles.userDetail}>
+            <span className={styles.username}>{userData.firstName} {userData.lastName}</span>
+            <span className={styles.userTitle}>Family Code: {userData.familyCode}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <ul className={styles.list}>
         {sidebarItems.map(cat => (
