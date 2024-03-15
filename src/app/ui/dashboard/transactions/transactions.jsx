@@ -1,4 +1,3 @@
-"use client"
 import { db } from "@/app/firebase/config";
 import { collection, getDocs, getDoc, doc } from "firebase/firestore";
 import React, { useEffect, useState, useMemo } from "react";
@@ -27,7 +26,6 @@ async function fetchTransactionsFromFirestore() {
         }
   
     }
-  
       return data;
     } catch(error) {
       console.error("Error fetching data from Firestore:", error);

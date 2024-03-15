@@ -1,11 +1,10 @@
 "use client"
-
-import styles from "../../ui/dashboard/family/users.module.css"
-import Search from '../../ui/dashboard/search/Search'
-import Link from 'next/link'
+import styles from "../../ui/dashboard/family/users.module.css";
+import Search from '../../ui/dashboard/search/Search';
+import Link from 'next/link';
 import { db } from "@/app/firebase/config";
-import { collection, getDocs } from "firebase/firestore";
-import React, {useEffect, useState} from "react";
+import { collection, getDocs, getDoc, updateDoc, doc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 
 async function fetchFamilyFromFirestore(familyCode) {
   try {
@@ -24,23 +23,51 @@ async function fetchFamilyFromFirestore(familyCode) {
   }
 }
 
+async function toggleJoining(allowJoining, familyCode, setAllowJoining) {
+  try {
+    const toggleDoc = await getDoc(doc(db, "FamilyCodes", familyCode));
+    if (toggleDoc.exists()) {
+      const toggleData = toggleDoc.data();
+      const updatedAllowJoining = !toggleData.allowJoining;
+      sessionStorage.setItem("allowJoining", updatedAllowJoining);
+      setAllowJoining(updatedAllowJoining);
+      await updateDoc(doc(db, "FamilyCodes", familyCode), { allowJoining: updatedAllowJoining });
+      console.log(`Allow Joining toggled to ${updatedAllowJoining ? 'On' : 'Off'}`);
+    }
+  } catch (error) {
+    console.error("Error toggling: ", error);
+  }
+}
+
 const UsersPage = () => {
   const [userData, setUserData] = useState([]);
+  const [allowJoining, setAllowJoining] = useState(sessionStorage.getItem("allowJoining") === 'true');
   const head = sessionStorage.getItem('head');
+  const familyCode = sessionStorage.getItem("familyCode");
 
-  useEffect(()=>{
-    const familyCode = sessionStorage.getItem("familyCode");
-    async function fetchData(){
+  useEffect(() => {
+    async function fetchData() {
       const data = await fetchFamilyFromFirestore(familyCode);
       setUserData(data);
     }
+    
     fetchData();
   }, []);
+
+  const handleToggleJoining = () => {
+    toggleJoining(allowJoining, familyCode, setAllowJoining);
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.top}>
-        <Search placeholder={"Search for a user"}/>
+        <Search placeholder={"Search for a user"} />
+        <button
+          className={`${styles.button} ${styles.toggleButton} ${allowJoining ? styles.view : styles.delete}`}
+          onClick={handleToggleJoining}
+        >
+          {allowJoining ? 'Allow Joining: On' : 'Allow Joining: Off'}
+        </button>
       </div>
       <table className={styles.table}>
         <thead>
@@ -52,8 +79,7 @@ const UsersPage = () => {
           </tr>
         </thead>
         <tbody>
-
-          {userData.map((user)=>(
+          {userData.map((user) => (
             <tr key={user.id}>
               <td>{user.firstName}</td>
               <td>{user.lastName}</td>
@@ -74,7 +100,7 @@ const UsersPage = () => {
         </tbody>
       </table>
     </div>
-  )
-}
+  );
+};
 
-export default UsersPage
+export default UsersPage;

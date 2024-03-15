@@ -32,6 +32,21 @@ async function fetchUserData(uid,router) {
   }
 }
 
+async function fetchFamilyToggle(familyCode){
+  try{
+    const codeDoc = await getDoc(doc(db,"FamilyCodes",familyCode));
+    if(codeDoc.exists()){
+      const codeData = codeDoc.data();
+      sessionStorage.setItem("allowJoining",codeData.allowJoining);
+    }
+    else{
+      router.push("/addDetails")
+    }
+  }catch(error){
+    console.error("Error fetching toggle mode: ", error)
+  }
+}
+
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
@@ -41,6 +56,7 @@ const Dashboard = () => {
     if (user) {
       sessionStorage.setItem('uid', user.uid);
       fetchUserData(user.uid,router);
+      fetchFamilyToggle(sessionStorage.getItem('familyCode'))
     }
     else if(!user && !sessionStorage.getItem('user')) {
       router.push('/login');
