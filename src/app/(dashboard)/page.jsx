@@ -73,7 +73,7 @@ const Dashboard = () => {
           <CardMonth />
         </div>
         <Transactions />
-        {/* <Chart/> */}
+        <Chart/>
       </div>
     </div>
   )

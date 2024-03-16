@@ -26,22 +26,30 @@ async function addUserToFamily(firstName,lastName,username,email,password,family
   }
 }
 
-async function checkHead(familyCode){
-  try{
-    const userDocs = await getDocs(collection(db,'User'));
-
-    for(const userDoc of userDocs.docs){
-      const userData = userDoc.data();
-      if(userData.familyCode == familyCode){
-        return false
+async function checkJoining(head, familyCode, setHead) {
+  try {
+    const codeDocRef = doc(db, 'FamilyCodes', familyCode);
+    const codeDoc = await getDoc(codeDocRef);
+    
+    if (codeDoc.exists()) {
+      setHead(false);
+      if (codeDoc.data().allowJoining) {
+        return true;
+      } else {
+        return false;
       }
+    } else {
+      setHead(true);
+      await setDoc(codeDocRef, { allowJoining: true });
+      console.log("Added code to FamilyCodes: ", familyCode);
+      return true;
     }
-    return true;
-  }catch(error){
-    console.error("Error checking for head", error);
-    return false
+  } catch (error) {
+    console.error("Error checking for joining and head", error);
+    return false;
   }
 }
+
 
 const AddUser = () => {
   const [firstName, setFirstName] = useState("");
@@ -50,34 +58,32 @@ const AddUser = () => {
   const [password, setPassword] = useState("");
   const [familyCode, setFamilyCode] = useState("");
   const [username, setUsername] = useState("");
+  const [head,setHead] = useState(false);
 
   const router = useRouter();
 
   const handleSubmit = async(event) =>{
     event.preventDefault();
-    const head = await checkHead(familyCode);
-    const added = await addUserToFamily(firstName,lastName,username,email,password,familyCode,head);
-    if(added){
-      alert("Data added to firestore");
-      router.push("/");
+    const allow = await checkJoining(head,familyCode, setHead);
+    if(allow){
+      const added = await addUserToFamily(firstName,lastName,username,email,password,familyCode,head);
+      if(added){
+        alert("Data added to firestore");
+        router.push("/");
+      }
+      else{
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setPassword("");
+        setUsername("");
+        setFamilyCode("");
+      }
     }
     else{
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setPassword("");
-      setUsername("");
-      setFamilyCode("");
-      console.log("Boo you fail");
+      alert("Please Contact Your Family Head to turn on joining")
     }
   }
-
-  // const [user] = useAuthState(auth);
-  // useEffect(()=>{
-  //   if(user){
-  //     router.push("/");
-  //   }
-  // },[user]);
 
   return (
     <div className={styles.container}>
@@ -102,7 +108,7 @@ const AddUser = () => {
           value={password}
           onChange={(e)=>setPassword(e.target.value)}
         />
-        <input type="password" placeholder='Family Code' name='familyCode' required
+        <input type="text" placeholder='Family Code' name='familyCode' required
           value={familyCode}
           onChange={(e)=>setFamilyCode(e.target.value)}
         />
