@@ -3,7 +3,7 @@ import styles from "../../ui/dashboard/family/users.module.css";
 import Search from '../../ui/dashboard/search/Search';
 import Link from 'next/link';
 import { db } from "@/app/firebase/config";
-import { collection, getDocs, getDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs, getDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 
 async function fetchFamilyFromFirestore(familyCode) {
@@ -39,6 +39,22 @@ async function toggleJoining(allowJoining, familyCode, setAllowJoining) {
   }
 }
 
+async function deleteFromFamily(deleteEmail){
+  try{
+    const userDocs = await getDocs(collection(db,'User'));
+    for(const userDoc of userDocs.docs){
+      if(userDoc.data().email === deleteEmail){
+        await deleteDoc(doc(db,'User',userDoc.id));
+        console.log(`Deleted user with email ${deleteEmail}`);
+        break;
+      }
+    }
+  }
+  catch(error){
+    console.error("Error Deleting: ", error);
+  }
+}
+
 const UsersPage = () => {
   const [userData, setUserData] = useState([]);
   const [allowJoining, setAllowJoining] = useState(sessionStorage.getItem("allowJoining") === 'true');
@@ -58,16 +74,24 @@ const UsersPage = () => {
     toggleJoining(allowJoining, familyCode, setAllowJoining);
   };
 
+  const handleDeleteUser = (deleteEmail) => {
+    deleteFromFamily(deleteEmail);
+    const updatedUserData = userData.filter(user => user.email !== deleteEmail);
+    setUserData(updatedUserData);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.top}>
         <Search placeholder={"Search for a user"} />
-        <button
-          className={`${styles.button} ${styles.toggleButton} ${allowJoining ? styles.view : styles.delete}`}
-          onClick={handleToggleJoining}
-        >
-          {allowJoining ? 'Allow Joining: On' : 'Allow Joining: Off'}
-        </button>
+        {head==="true" && (
+          <button
+            className={`${styles.button} ${styles.toggleButton} ${allowJoining ? styles.view : styles.delete}`}
+            onClick={handleToggleJoining}
+          >
+            {allowJoining ? 'Allow Joining: On' : 'Allow Joining: Off'}
+          </button>
+        )}
       </div>
       <table className={styles.table}>
         <thead>
@@ -90,8 +114,10 @@ const UsersPage = () => {
                   <Link href="/">
                     <button className={`${styles.button} ${styles.view}`}>View</button>
                   </Link>
-                  {head === 'true' && (
-                    <button className={`${styles.button} ${styles.delete}`}>Delete</button>
+                  {head === 'true' && sessionStorage.getItem('email')!==user.email && (
+                    <button className={`${styles.button} ${styles.delete}`} onClick={() => handleDeleteUser(user.email)}>
+                      Delete
+                    </button>
                   )}
                 </div>
               </td>

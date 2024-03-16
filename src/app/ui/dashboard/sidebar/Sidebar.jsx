@@ -68,6 +68,7 @@ const Sidebar = () => {
         const firstName = sessionStorage.getItem('firstName');
         const lastName = sessionStorage.getItem('lastName');
         const familyCode = sessionStorage.getItem('familyCode');
+        console.log(firstName);
 
         setUserData({ firstName, lastName, familyCode });
       } catch (error) {
