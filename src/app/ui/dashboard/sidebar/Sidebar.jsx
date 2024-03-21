@@ -20,7 +20,7 @@ const sidebarItems = [
       },
       {
         title: "Transactions",
-        path: "/dashboard/transactions",
+        path: "/transactions",
         icon: <MdAttachMoney/>
       },
     ],
@@ -63,24 +63,19 @@ const Sidebar = () => {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const firstName = sessionStorage.getItem('firstName');
-        const lastName = sessionStorage.getItem('lastName');
-        const familyCode = sessionStorage.getItem('familyCode');
-        console.log(firstName);
-
+    try {
+      const firstName = sessionStorage.getItem('firstName');
+      const lastName = sessionStorage.getItem('lastName');
+      const familyCode = sessionStorage.getItem('familyCode');
+  
+      if (firstName && lastName && familyCode) {
         setUserData({ firstName, lastName, familyCode });
-      } catch (error) {
-        console.error('Error fetching user data:', error);
       }
-    };
-
-    fetchData();
-    return () => {
-    
-    };
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
   }, []); 
+  
 
   const handleLogout = async () => {
     try {
