@@ -4,6 +4,13 @@
     border-radius: 10px;
 }
 
+.familyMember{
+    background-color: var(--bgSoft);
+    color: var(--text);
+    padding: 5px;
+    margin: 5px;
+}
+
 .title{
     margin-bottom: 20px;
     font-weight: 200;
