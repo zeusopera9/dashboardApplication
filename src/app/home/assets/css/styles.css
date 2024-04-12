@@ -183,6 +183,9 @@ p {
   font-size: var(--h2-font-size);
   color: var(--first-color);
 }
+.home__description {
+  padding-top: 1rem;
+}
 
 /*----- COMPONENTS -----*/
 .icon-box {

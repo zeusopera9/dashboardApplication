@@ -30,7 +30,7 @@ async function fetchTransactionByID(userID) {
       const expenseData = expenseDoc.data();
       if (expenseData.uid === userID) {
         const transaction = {
-          id: expenseData.uid,
+          id: expenseDoc.id,
           amount: expenseData.amount,
           category: expenseData.category,
           date: expenseData.date,
@@ -100,7 +100,9 @@ const TransactionsPage = () => {
       <select className={styles.familyMember} onChange={handleChange} defaultValue="none">
         <option value="none" disabled>Select</option>
         {userData.map((user) => (
-          <option key={user.id} value={user.id} className={styles.familyMember}>{user.firstName + " " + user.lastName}</option>
+          <option key={`user_${user.id}`} value={user.id} className={styles.familyMember}>
+            {user.firstName + " " + user.lastName}
+          </option>
         ))}
       </select>
       <table className={styles.table}>
@@ -113,18 +115,18 @@ const TransactionsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {formattedTransactions.map(transaction => (
-            <tr key={transaction.id}>
-              <td>{transaction.formattedDate}</td>
-              <td>Rs {transaction.amount}</td>
-              <td>
-                <span className={`${styles.status} ${getCategoryClassName(transaction.category)}`}>
-                  {transaction.category}
-                </span>
-              </td>
-              <td>{transaction.mode}</td>
-            </tr>
-          ))}
+        {formattedTransactions.map(transaction => (
+          <tr key={`transaction_${transaction.id}`}>
+            <td>{transaction.formattedDate}</td>
+            <td>Rs {transaction.amount}</td>
+            <td>
+              <span className={`${styles.status} ${getCategoryClassName(transaction.category)}`}>
+                {transaction.category}
+              </span>
+            </td>
+            <td>{transaction.mode}</td>
+          </tr>
+        ))}
         </tbody>
       </table>
     </div>

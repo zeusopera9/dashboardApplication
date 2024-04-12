@@ -5,6 +5,7 @@ import {useSignInWithEmailAndPassword} from 'react-firebase-hooks/auth';
 import {auth} from '@/app/firebase/config';
 import { useRouter } from 'next/navigation';
 import { useAuthState } from "react-firebase-hooks/auth"
+import Link from 'next/link';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -57,7 +58,7 @@ const LoginPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-
+        <span>Don't have an account? <Link href="/register" className={styles.registerLink}>Register Here</Link></span>
         <button type='submit'>Login</button>
       </form>
     </div>

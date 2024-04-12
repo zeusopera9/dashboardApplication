@@ -58,26 +58,9 @@ const sidebarItems = [
 ];
 
 
-const Sidebar = () => {
+const Sidebar = ({userData}) => {
   const router = useRouter();
-  const [userData, setUserData] = useState(null);
-
-  useEffect(() => {
-    try {
-      const firstName = sessionStorage.getItem('firstName');
-      const lastName = sessionStorage.getItem('lastName');
-      const familyCode = sessionStorage.getItem('familyCode');
-      console.log(sessionStorage.getItem('firstName'));
   
-      if (firstName && lastName && familyCode) {
-        setUserData({ firstName, lastName, familyCode });
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  }, []); 
-  
-
   const handleLogout = async () => {
     try {
       await signOut(auth);
