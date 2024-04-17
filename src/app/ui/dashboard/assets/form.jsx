@@ -19,34 +19,39 @@ const AssetForm = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        <h2>Asset Information</h2>
+        <h2 className={styles.formTextHeader}>Asset Form</h2>
         <form onSubmit={handleSubmit} >
-          <div>
-            <label htmlFor="assetName">Asset Name:</label>
+          <div> 
+            <label htmlFor="assetName" className={styles.formLabel}>
+              Asset Name:
+            </label>
             <input
               type="text"
               id="assetName"
               value={assetName}
               onChange={(e) => setAssetName(e.target.value)}
+              className={styles.formInput}
               required
             />
           </div>
           <div>
-            <label htmlFor="assetValue">Asset Value ($):</label>
+            <label htmlFor="assetValue" className={styles.formLabel}>Asset Value ($):</label>
             <input
               type="number"
               id="assetValue"
               value={assetValue}
               onChange={(e) => setAssetValue(e.target.value)}
+              className={styles.formInput}
               required
             />
           </div>
           <div>
-            <label htmlFor="assetType">Asset Type:</label>
+            <label htmlFor="assetType" className={styles.formLabel}>Asset Type:</label>
             <select
               id="assetType"
               value={assetType}
               onChange={(e) => setAssetType(e.target.value)}
+              className={styles.formSelect}
               required
             >
               <option value="">Select</option>
@@ -56,7 +61,7 @@ const AssetForm = () => {
               {/* Add more options as needed */}
             </select>
           </div>
-          <button type="submit">Submit</button>
+          <button type="submit" className={styles.formButton}>Submit</button>
         </form>
       </div>
     </div>
