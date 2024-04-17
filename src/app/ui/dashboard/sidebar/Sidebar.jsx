@@ -30,7 +30,7 @@ const sidebarItems = [
     list:[
       {
         title: "Reports",
-        path: "/dashboard/reports",
+        path: "/reports",
         icon: <MdAnalytics/>
       },
       {
@@ -45,12 +45,12 @@ const sidebarItems = [
     list:[
       {
         title: "Settings",
-        path: "/dashboard/settings",
+        path: "/settings",
         icon: <MdOutlineSettings/>
       },
       {
         title: "Help",
-        path: "/dashboard/help",
+        path: "/help",
         icon: <MdHelpCenter/>
       },
     ],

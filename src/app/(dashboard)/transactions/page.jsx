@@ -74,7 +74,7 @@ const TransactionsPage = () => {
     setTransactions(data);
   };
   const [userData, setUserData] = useState([]);
-
+  
   const formattedTransactions = useMemo(() => {
     return transactions.map(transaction => {
       const transactionDate = transaction.date.toDate();
