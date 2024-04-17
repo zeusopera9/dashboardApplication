@@ -28,14 +28,14 @@ const page = () => {
         </div>
         
         <div className={styles.rightHeader}>
-          <button className={styles.optionButton}>Add an Asset</button>
-          <button className={styles.optionButton}>View Assets</button>
+          <button onClick={handleAddAssetClick} className={styles.optionButton}>Add an Asset</button>
+          <button onClick={handleViewAssetClick} className={styles.optionButton}>View Assets</button>
         </div>
       </div>
       <div>
-        <ViewAssets />  
+        {showViewAsset && <ViewAssets />}  
+        {showForm && <AssetForm />}
       </div>
-      {/* <AssetForm /> */}
     </div>
   )
 }
