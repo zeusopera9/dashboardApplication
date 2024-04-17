@@ -1,9 +1,9 @@
 .container{
-    height: 450px;
+    height: 500px;
     background-color: var(--bgSoft);
     padding: 20px;
     border-radius: 10px;
-    width: 50%;
+    width: 45%;
 }
 
 .title{

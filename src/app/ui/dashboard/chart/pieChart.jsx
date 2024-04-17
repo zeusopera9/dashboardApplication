@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './pieChart.module.css';
 import { db } from "@/app/firebase/config";
-import { getDocs, collection, getDoc } from "firebase/firestore";
+import { getDocs, collection, getDoc, doc } from "firebase/firestore";
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
 
 
@@ -39,7 +39,7 @@ async function fetchTransactionFromFirebase(code) {
       const expenseData = expenseDoc.data();
       const userDocRef = doc(db, "User", expenseData.uid);
       const userDoc = await getDoc(userDocRef);
-      if (userDoc.data().familyCode === sessionStorage.getItem('familyCode')) {
+      if (userDoc.data().familyCode === code) {
         const categoryIndex = data.findIndex((category) => category.name === expenseData.category);
         if (categoryIndex !== -1) {
           data[categoryIndex].value += expenseData.amount;
@@ -53,17 +53,6 @@ async function fetchTransactionFromFirebase(code) {
     return [];
   }
 }
-
-
-const data = [
-  { name: 'Food', value: 10, fill: '#f705bb75' },
-  { name: 'Groceries', value: 10, fill: '#9cf72c75' },
-  { name: 'Health Care', value: 10, fill: '#f7737375' },
-  { name: 'Housing and Bills', value: 10, fill: '#fdc200' },
-  { name: 'Personal Care', value: 10, fill: '#afd6ee75' },
-  { name: 'Transportation Cost', value: 10, fill: '#f7cb7375' },
-];
-
 
 const renderActiveShape = (props) => {
   const RADIAN = Math.PI / 180;
@@ -132,8 +121,6 @@ const pieChart = () => {
       fetchTransactions();
     }, [familyCode]);
 
-    console.log('Transactions data:', transactions);
-
     const handleChange = async (e) => {
         console.log('Selected value:', e.target.value);
         const data = await fetchTransactionByID(e.target.value);
@@ -151,7 +138,6 @@ const pieChart = () => {
 
             <div className={styles.align}>
                 <h2>Category wise Expenses</h2>
-
                 <select className={styles.familyMember} onChange={handleChange} defaultValue="none">
                     <option value="all" selected>Everyone</option>
                     {userData.map((user) => (
@@ -167,11 +153,11 @@ const pieChart = () => {
                     <Pie
                         activeIndex={activeIndex}
                         activeShape={renderActiveShape}
-                        data={data}
+                        data={transactions}
                         cx="50%"
                         cy="50%"
-                        innerRadius={80}
-                        outerRadius={100}
+                        innerRadius={100}
+                        outerRadius={120}
                         fill="#8884d8"
                         dataKey="value"
                         onMouseEnter={onPieEnter}
