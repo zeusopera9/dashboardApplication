@@ -1,6 +1,7 @@
 import React from 'react'
 import PieChart from '../../ui/dashboard/chart/pieChart'
 import BarChart from '../../ui/dashboard/chart/barChart'
+import LineChart from '../../ui/dashboard/chart/lineChart'
 import styles from '../../ui/dashboard/reports/reports.module.css'
 
 const ReportsPage = () => {
@@ -10,7 +11,7 @@ const ReportsPage = () => {
           <PieChart/>
           <BarChart/>
       </div>
-      
+      <LineChart/>
     </div>
   )
 }

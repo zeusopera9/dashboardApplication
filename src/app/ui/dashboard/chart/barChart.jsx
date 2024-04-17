@@ -17,9 +17,9 @@ async function fetchExpenseFromFirestore() {
             if (userDoc.data().familyCode === sessionStorage.getItem('familyCode')) {
                 const firstName = userDoc.data().firstName;
                 if (!expensesData[firstName]) {
-                    expensesData[firstName] = { name: firstName, amt: 0 };
+                    expensesData[firstName] = { name: firstName, Expense: 0 };
                 }
-                expensesData[firstName].amt += expenseData.amount;
+                expensesData[firstName].Expense += expenseData.amount;
             }
         }
 
@@ -38,7 +38,6 @@ const BarChartComponent = () => {
         async function fetchData() {
             try {
                 const expenses = await fetchExpenseFromFirestore();
-                console.log('Fetched expenses:', expenses);
                 setData(expenses);
             } catch (error) {
                 console.error('Error fetching expenses:', error);
@@ -62,7 +61,7 @@ const BarChartComponent = () => {
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="amt" fill="white" />
+                    <Bar dataKey="Expense" fill="#fdc200" />
                 </BarChart>
             </ResponsiveContainer>
         </div>

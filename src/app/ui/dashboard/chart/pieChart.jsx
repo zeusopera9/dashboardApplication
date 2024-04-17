@@ -46,7 +46,6 @@ async function fetchTransactionFromFirebase(code) {
         }
       }
     }
-    console.log('data: ', data)
     return data;
   } catch (error) {
     console.error("Error fetching transactions: ", error);

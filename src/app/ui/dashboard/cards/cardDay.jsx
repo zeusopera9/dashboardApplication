@@ -63,7 +63,7 @@ const CardDay = () => {
         <span className={styles.number}>{todayTotal}</span>
         {isFinite(multiplier) && multiplier !== "Infinity" && (
           <span className={todayTotal > yesterdayTotal ? styles.negative : styles.positive}>
-            {todayTotal > yesterdayTotal ? `${displayText} more` : `${displayText} less`} than yesterday. <br></br>Good Job!
+            {todayTotal > yesterdayTotal ? `${displayText} more` : `${displayText} less`} than yesterday.
           </span>
         )}
       </div>
