@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import styles from "./sidebar.module.css";
-import { MdAnalytics, MdAttachMoney, MdDashboard, MdHelpCenter, MdLogout, MdOutlineSettings } from 'react-icons/md';
+import { MdAnalytics, MdAttachMoney, MdDashboard, MdHelpCenter, MdLogout, MdOutlineAttachMoney, MdOutlineSelfImprovement, MdOutlineSettings } from 'react-icons/md';
 import { GiFamilyHouse } from "react-icons/gi";
 import MenuLink from './menuLink/menuLink';
 import Image from 'next/image';
@@ -23,6 +23,11 @@ const sidebarItems = [
         path: "/transactions",
         icon: <MdAttachMoney/>
       },
+      {
+        title: "Assets",
+        path: "/asset",
+        icon: <MdOutlineSelfImprovement />
+      }
     ],
   },
   {
