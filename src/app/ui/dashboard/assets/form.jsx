@@ -1,14 +1,35 @@
 import React, { useState } from 'react';
 import styles from './assetForm.module.css';
 
+import { auth, db } from '@/app/firebase/config';
+
 const AssetForm = () => {
   const [assetName, setAssetName] = useState('');
   const [assetValue, setAssetValue] = useState('');
   const [assetType, setAssetType] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you can submit the form data to Firebase
+
+    try {
+      const user = auth.currentUser;
+      if(user) {
+        const userId = user.uid;
+        const assetData = { assetName, assetValue, assetType };
+
+        await db.collection('users').doc(userId).collection('assets').add(assetData);
+
+        console.log("Asset Added Successfully");
+
+        setAssetName('');
+        setAssetValue('');
+        setAssetType('');
+      } else {
+        console.log("No user is signed in");
+      }
+    } catch(error) {
+      console.log("Error Adding Asset: ", error);
+    }
     console.log('Form submitted:', { assetName, assetValue, assetType });
     // Reset form fields
     setAssetName('');
