@@ -41,7 +41,7 @@ const HomePage = () => {
           </div>
           <div className="home__information">
             <h2 className="home__subtitle"><p>Expense Tracker</p></h2>
-            <p className="home__description"> An AI powered personal finance application :)</p>
+            <p className="home__description"> A collaborative personal finance application :)</p>
           </div>
           
         </div>
