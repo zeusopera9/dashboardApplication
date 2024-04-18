@@ -8,18 +8,25 @@ import { getDocs, collection, getDoc, doc } from "firebase/firestore";
 
 async function fetchExpenseFromFirestore() {
     try {
+        const currentDate = new Date();
+        const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - currentDate.getDay());
+        const endOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), startOfWeek.getDate() + 6);
+
         const expenseDocs = await getDocs(collection(db, 'Expense'));
         const expensesData = {};
         for (const expenseDoc of expenseDocs.docs) {
             const expenseData = expenseDoc.data();
-            const userDocRef = doc(db, "User", expenseData.uid);
-            const userDoc = await getDoc(userDocRef);
-            if (userDoc.data().familyCode === sessionStorage.getItem('familyCode')) {
-                const firstName = userDoc.data().firstName;
-                if (!expensesData[firstName]) {
-                    expensesData[firstName] = { name: firstName, Expense: 0 };
+            const expenseDate = new Date(expenseData.date.seconds * 1000); 
+            if (expenseDate >= startOfWeek && expenseDate <= endOfWeek) {
+                const userDocRef = doc(db, "User", expenseData.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.data().familyCode === sessionStorage.getItem('familyCode')) {
+                    const firstName = userDoc.data().firstName;
+                    if (!expensesData[firstName]) {
+                        expensesData[firstName] = { name: firstName, Expense: 0 };
+                    }
+                    expensesData[firstName].Expense += expenseData.amount;
                 }
-                expensesData[firstName].Expense += expenseData.amount;
             }
         }
 
@@ -30,6 +37,7 @@ async function fetchExpenseFromFirestore() {
         return [];
     }
 }
+
 
 const BarChartComponent = () => {
     const [data, setData] = useState([]);

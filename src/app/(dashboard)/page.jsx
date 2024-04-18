@@ -17,6 +17,7 @@ async function fetchUserData(uid,router) {
     const userDoc = await getDoc(doc(db, "User", uid));
     if (userDoc.exists()) {
       const userData = userDoc.data();
+      sessionStorage.setItem('uid',uid);
       sessionStorage.setItem('email', userData.email);
       sessionStorage.setItem('familyCode', userData.familyCode);
       sessionStorage.setItem('firstName', userData.firstName);

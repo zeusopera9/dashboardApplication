@@ -6,24 +6,7 @@ import { getDocs, collection, getDoc, doc } from "firebase/firestore";
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
 
 
-async function fetchFamilyFromFirestore(familyCode) {
-    try {
-      const userDocs = await getDocs(collection(db, "User"));
-      const data = [];
-  
-      userDocs.forEach((doc) => {
-        if (doc.data().familyCode === familyCode) {
-          data.push({ id: doc.id, ...doc.data() });
-        }
-      });
-      return data;
-    } catch (error) {
-      console.error("Error fetching data from Firestore:", error);
-      return [];
-    }
-}
-
-async function fetchTransactionFromFirebase(code) {
+async function fetchTransactionFromFirebase(selectedFamilyMember) {
   try {
     const expenseDocs = await getDocs(collection(db, 'Expense'));
     const data = [
@@ -34,15 +17,39 @@ async function fetchTransactionFromFirebase(code) {
       { name: 'Personal Care', value: 0, fill: '#afd6ee75' },
       { name: 'Transportation Cost', value: 0, fill: '#f7cb7375' },
     ];
+    const currentDate = new Date();
+    const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - currentDate.getDay());
+    const endOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), startOfWeek.getDate() + 6);
 
-    for (const expenseDoc of expenseDocs.docs) {
-      const expenseData = expenseDoc.data();
-      const userDocRef = doc(db, "User", expenseData.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.data().familyCode === code) {
-        const categoryIndex = data.findIndex((category) => category.name === expenseData.category);
-        if (categoryIndex !== -1) {
-          data[categoryIndex].value += expenseData.amount;
+    if(selectedFamilyMember=='all'){
+      for (const expenseDoc of expenseDocs.docs) {
+        const expenseData = expenseDoc.data();
+        const expenseDate = new Date(expenseData.date.seconds * 1000); 
+        const userDocRef = doc(db, "User", expenseData.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (expenseDate >= startOfWeek && expenseDate <= endOfWeek) {
+          if (userDoc.data().familyCode === sessionStorage.getItem("familyCode")) {
+            const categoryIndex = data.findIndex((category) => category.name === expenseData.category);
+            if (categoryIndex !== -1) {
+              data[categoryIndex].value += expenseData.amount;
+            }
+          }
+        }
+      }
+    }
+    else{
+      for (const expenseDoc of expenseDocs.docs) {
+        const expenseData = expenseDoc.data();
+        const expenseDate = new Date(expenseData.date.seconds * 1000); 
+        const userDocRef = doc(db, "User", expenseData.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (expenseDate >= startOfWeek && expenseDate <= endOfWeek) {
+          if (userDoc.data().familyCode === sessionStorage.getItem("familyCode") && expenseData.uid === selectedFamilyMember) {
+            const categoryIndex = data.findIndex((category) => category.name === expenseData.category);
+            if (categoryIndex !== -1) {
+              data[categoryIndex].value += expenseData.amount;
+            }
+          }
         }
       }
     }
@@ -99,32 +106,19 @@ const renderActiveShape = (props) => {
   );
 };
 
-const pieChart = () => {
-    const familyCode = sessionStorage.getItem("familyCode");
-    const [userData, setUserData] = useState([]);
+const pieChart = ({ selectedFamilyMember }) => {
     const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
-        async function fetchData() {
-          const data = await fetchFamilyFromFirestore(familyCode);
-          setUserData(data);
-        }
-        fetchData();
-    }, []);
-
-    useEffect(() => {
+      console.log('Selected Family Member:', selectedFamilyMember);
       async function fetchTransactions() {
-          const data = await fetchTransactionFromFirebase(familyCode);
+          const data = await fetchTransactionFromFirebase(selectedFamilyMember);
           setTransactions(data);
       }
       fetchTransactions();
-    }, [familyCode]);
+    }, [selectedFamilyMember]);
+  
 
-    const handleChange = async (e) => {
-        console.log('Selected value:', e.target.value);
-        const data = await fetchTransactionByID(e.target.value);
-        setTransactions(data);
-    };
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -137,14 +131,6 @@ const pieChart = () => {
 
             <div className={styles.align}>
                 <h2>Category wise Expenses</h2>
-                <select className={styles.familyMember} onChange={handleChange} defaultValue="none">
-                    <option value="all" selected>Everyone</option>
-                    {userData.map((user) => (
-                    <option key={`user_${user.id}`} value={user.id} className={styles.familyMember}>
-                        {user.firstName + " " + user.lastName}
-                    </option>
-                    ))}
-                </select>
             </div>
 
             <ResponsiveContainer width="100%" height="100%">

@@ -5,7 +5,7 @@ import { Timestamp, collection, doc, getDoc, getDocs, query, where } from "fireb
 import styles from "./chart.module.css";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-async function fetchWeeklyExpenseData(expenseData, setExpenseData) {
+async function fetchWeeklyExpenseData(setExpenseData, selectedFamilyMember) {
   try {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -20,7 +20,7 @@ async function fetchWeeklyExpenseData(expenseData, setExpenseData) {
     const data = {};
 
     const weeksInMonth = [];
-    const weekStart = new Date(startOfMonth);
+    let weekStart = new Date(startOfMonth);
     while (weekStart <= endOfMonth) {
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
@@ -28,40 +28,55 @@ async function fetchWeeklyExpenseData(expenseData, setExpenseData) {
       weekStart.setDate(weekStart.getDate() + 7);
     }
 
-    weeksInMonth.forEach((week, index) => {
-        const weekLabel = `Week ${index + 1}`;
-        data[weekLabel] = { expense: 0 };
-        
-        expenseDocsSnapshot.forEach(expenseDoc => {
-          const expenseData = expenseDoc.data();
-          const expenseDate = expenseData.date.toDate();
-          if (expenseDate >= week.start && expenseDate <= week.end) {
-            data[weekLabel]['expense'] += expenseData.amount;
-          }
-        });
-    });
+    for (const week of weeksInMonth) {
+      const weekLabel = `Week ${weeksInMonth.indexOf(week) + 1}`;
+      data[weekLabel] = { expense: 0 };
       
+      if (selectedFamilyMember === 'all') {
+        for (const expenseDoc of expenseDocsSnapshot.docs) {
+          const expenseData = expenseDoc.data();
+          const userDocRef = doc(db, "User", expenseData.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.data().familyCode === sessionStorage.getItem("familyCode")) {
+            const expenseDate = expenseData.date.toDate();
+            if (expenseDate >= week.start && expenseDate <= week.end) {
+              data[weekLabel]['expense'] += expenseData.amount;
+            }
+          }
+        }
+      } else {
+        for (const expenseDoc of expenseDocsSnapshot.docs) {
+          const expenseData = expenseDoc.data();
+          if (expenseData.uid === selectedFamilyMember) {
+            const expenseDate = expenseData.date.toDate();
+            if (expenseDate >= week.start && expenseDate <= week.end) {
+              data[weekLabel]['expense'] += expenseData.amount;
+            }
+          }
+        }
+      }
+    }
 
     const formattedData = Object.keys(data).map(weekLabel => ({
       week: weekLabel,
       ...data[weekLabel]
     }));
 
+    console.log("Weekly Expense Data before formatting:", data);
+    console.log("Formatted Weekly Expense Data:", formattedData);
     setExpenseData(formattedData);
-    console.log("Weekly Expense Data:", formattedData);
   } catch (error) {
     console.error("Error fetching data from Firestore:", error);
     throw error;
   }
 }
 
-
-const LineChartComponent = () => {
+const LineChartComponent = ({selectedFamilyMember}) => {
   const [expenseData, setExpenseData] = useState([]);
 
   useEffect(() => {
-    fetchWeeklyExpenseData(expenseData, setExpenseData);
-  }, []);
+    fetchWeeklyExpenseData(setExpenseData, selectedFamilyMember);
+  }, [selectedFamilyMember]);
 
   return (
     <div className={styles.container}>
