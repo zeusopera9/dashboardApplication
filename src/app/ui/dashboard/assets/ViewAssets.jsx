@@ -41,14 +41,16 @@ const ViewAssets = () => {
 
   return (
     <div className={styles.container}>
-      {userData.map((user) => (
-        <div key={user.uid}>
-          <div className={styles.chartContainer}>
-            <h2>{user.firstname} {user.lastname}</h2>
-            <AssetChart uid={user.uid} />
+      <div className={styles.chartRow}>
+        {userData.map((user) => (
+          <div key={user.uid}>
+            <div className={styles.chartContainer}>
+              <h2>{user.firstname} {user.lastname}</h2>
+              <AssetChart uid={user.uid} />
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
