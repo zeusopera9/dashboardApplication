@@ -1,41 +1,49 @@
 import React, { useState } from 'react';
 import styles from './assetForm.module.css';
-
 import { auth, db } from '@/app/firebase/config';
+import { setDoc, collection, getDocs, getDoc, doc, addDoc } from 'firebase/firestore'
+
+
+async function addAssets(assetName, assetValue, assetType) {
+  try {
+    const assetCollectionRef = collection(db, 'Assets');
+    await addDoc(assetCollectionRef, {
+      familyCode: sessionStorage.getItem('familyCode'),
+      name: assetName,
+      type: assetType,
+      value: assetValue,
+      uid: sessionStorage.getItem('uid')
+    });
+    return true; 
+  } catch (error) {
+    console.error('Error adding assets: ', error);
+    return false;
+  }
+}
+
 
 const AssetForm = () => {
   const [assetName, setAssetName] = useState('');
-  const [assetValue, setAssetValue] = useState('');
+  const [assetValue, setAssetValue] = useState();
   const [assetType, setAssetType] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const user = auth.currentUser;
-      if(user) {
-        const userId = user.uid;
-        const assetData = { assetName, assetValue, assetType };
-
-        await db.collection('users').doc(userId).collection('assets').add(assetData);
-
-        console.log("Asset Added Successfully");
-
-        setAssetName('');
-        setAssetValue('');
-        setAssetType('');
-      } else {
-        console.log("No user is signed in");
-      }
-    } catch(error) {
-      console.log("Error Adding Asset: ", error);
+  
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const numericAssetValue = parseFloat(assetValue);
+    const added = await addAssets(assetName, numericAssetValue, assetType);
+    if (added) {
+      alert('Asset Added');
+      setAssetName('');
+      setAssetValue('');
+      setAssetType('');
+    } else {
+      alert('Failed to add asset');
+      setAssetName('');
+      setAssetValue('');
+      setAssetType('');
     }
-    console.log('Form submitted:', { assetName, assetValue, assetType });
-    // Reset form fields
-    setAssetName('');
-    setAssetValue('');
-    setAssetType('');
   };
+  
 
   return (
     <div className={styles.container}>
@@ -79,7 +87,6 @@ const AssetForm = () => {
               <option value="Savings Account">Savings Account</option>
               <option value="Stocks">Stocks</option>
               <option value="Real Estate">Real Estate</option>
-              {/* Add more options as needed */}
             </select>
           </div>
           <button type="submit" className={styles.formButton}>Submit</button>

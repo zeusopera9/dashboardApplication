@@ -1,24 +1,35 @@
-import React, { PureComponent, useState, useCallback } from 'react';
+import React, { PureComponent, useState, useCallback, useEffect } from 'react';
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
+import { db } from "@/app/firebase/config";
+import { getDocs, collection, getDoc, doc } from "firebase/firestore";
 
-const data = [
-  { name: 'Group A', value: 400 },
-  { name: 'Group B', value: 300 },
-  { name: 'Group C', value: 300 },
-  { name: 'Group D', value: 200 },
-];
-const data2 = [
-  { name: 'Group A', value: 400 },
-  { name: 'Group B', value: 300 },
-  { name: 'Group C', value: 300 },
-  { name: 'Group D', value: 200 },
-];
-const data3 = [
-  { name: 'Group A', value: 400 },
-  { name: 'Group B', value: 300 },
-  { name: 'Group C', value: 300 },
-  { name: 'Group D', value: 200 },
-];
+async function fetchAssetsFromFirestore(uid){
+  try{
+    const assetsDocs = await getDocs(collection(db,'Assets'));
+    const data = [
+      {name: 'Savings Account', value: 0, fill: '#f705bb75'},
+      {name: 'Stocks', value: 0, fill: '#9cf72c75'},
+      {name: 'Real Estate', value: 0, fill: '#f7737375'},
+    ];
+
+    for(const assetsDoc of assetsDocs.docs){
+      const assetsData = assetsDoc.data();
+      if(assetsData.uid === uid){
+        const assetsIndex = data.findIndex((type) => type.name === assetsData.type);
+        if (assetsIndex !== -1) {
+          data[assetsIndex].value += assetsData.value;
+        }
+      }
+    }
+
+    console.log(data, uid);
+    return data;
+  }catch(error){
+    console.error('Error fetching assets: ', error);
+    return [];
+  }
+}
+
 
 const renderActiveShape = (props) => {
   const RADIAN = Math.PI / 180;
@@ -58,72 +69,46 @@ const renderActiveShape = (props) => {
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`PV ${value}`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`${value}`}</text>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
-        {`(Rate ${(percent * 100).toFixed(2)}%)`}
+        {`(${(percent * 100).toFixed(2)}%)`}
       </text>
     </g>
   );
 };
 
-const AssetChart = () => {
-    const [activeIndex1, setActiveIndex1] = useState(0);
-  const [activeIndex2, setActiveIndex2] = useState(0);
-  const [activeIndex3, setActiveIndex3] = useState(0);
-
-  const onPieEnter1 = useCallback((_, index) => {
-    setActiveIndex1(index);
+const AssetChart = ({uid}) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [assetsData, setAssetsData] = useState([]);
+  const onPieEnter = useCallback((_, index) => {
+    setActiveIndex(index);
   }, []);
 
-  const onPieEnter2 = useCallback((_, index) => {
-    setActiveIndex2(index);
-  }, []);
-
-  const onPieEnter3 = useCallback((_, index) => {
-    setActiveIndex3(index);
+  useEffect(() => {
+    async function fetchTransactions() {
+        const data = await fetchAssetsFromFirestore(uid);
+        setAssetsData(data)
+    }
+    fetchTransactions();
   }, []);
 
   return (
-    <>
-        <PieChart width={800} height={400}>
-            <Pie
-                activeIndex={activeIndex1}
-                activeShape={renderActiveShape}
-                data={data}
-                cx={150}
-                cy={200}
-                innerRadius={60}
-                outerRadius={80}
-                fill="#8844d8"
-                dataKey="value"
-                onMouseEnter={onPieEnter1}
-            />
-            <Pie
-                activeIndex={activeIndex2}
-                activeShape={renderActiveShape}
-                data={data2}
-                cx={400}
-                cy={200}
-                innerRadius={60}
-                outerRadius={80}
-                fill="#8824d8"
-                dataKey="value"
-                onMouseEnter={onPieEnter2}
-            />
-            <Pie
-                activeIndex={activeIndex3}
-                activeShape={renderActiveShape}
-                data={data3}
-                cx={650}
-                cy={200}
-                innerRadius={60}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                onMouseEnter={onPieEnter3}
-            />            
-        </PieChart>
-    </>
+    <div>
+      <PieChart width={400} height={400}>
+        <Pie
+          activeIndex={activeIndex}
+          activeShape={renderActiveShape}
+          data={assetsData}
+          cx='50%'
+          cy='50%'
+          innerRadius={80}
+          outerRadius={100}
+          fill="#8844d8"
+          dataKey="value"
+          onMouseEnter={onPieEnter}
+        />     
+      </PieChart>
+    </div>
     );
   }
 
