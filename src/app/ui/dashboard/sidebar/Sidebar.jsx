@@ -1,10 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import styles from "./sidebar.module.css";
-import { MdAnalytics, MdAttachMoney, MdDashboard, MdHelpCenter, MdLogout, MdOutlineAttachMoney, MdOutlineSelfImprovement, MdOutlineSettings } from 'react-icons/md';
+import { MdAnalytics, MdAttachMoney, MdDashboard, MdHelpCenter, MdLogout, MdOutlineSelfImprovement, MdOutlineSettings, MdChat } from 'react-icons/md';
 import { GiFamilyHouse } from "react-icons/gi";
 import MenuLink from './menuLink/menuLink';
-import Image from 'next/image';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/app/firebase/config';
 import { useRouter } from 'next/navigation';
@@ -27,6 +26,11 @@ const sidebarItems = [
         title: "Assets",
         path: "/asset",
         icon: <MdOutlineSelfImprovement />
+      },
+      {
+        title: "Chat with AI",
+        path: "/chat",
+        icon: <MdChat />
       }
     ],
   },

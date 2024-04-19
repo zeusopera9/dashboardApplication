@@ -1,0 +1,71 @@
+.inputBox {
+    padding: 10px;
+    width: 67%;
+    border-radius: 10px;
+    font-size: large;
+}
+
+.button {
+    border-radius: 10px;
+    font-size: large;
+    padding: 10px;
+}
+
+.form {
+    display: flex;
+    gap: 1%;
+    position: fixed;
+    bottom: 3%;
+    left: 21.6%;
+    width: 100%;
+    padding: 10px; 
+    box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.1);
+    background-color: #151c2c;
+    margin-bottom: -20px;
+}
+
+.errorMessage {
+    color: #EF4444;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+  
+.container {
+  flex: 1;
+  overflow-y: auto;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+.messageContainer {
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
+}
+
+.messageText {
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.userMessage {
+  text-align: right;
+  background-color: white;
+  color: black;
+  padding: 0.5rem;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.botMessage {
+  background-color: #333333;
+  color: #f9f9f9;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.messageTimestamp {
+  font-size: 0.75rem;
+  margin-top: 0.75rem;
+}
+  
