@@ -1,18 +1,31 @@
-import Image from 'next/image'; 
-import Head from 'next/head'; 
-import "@/app/home/assets/css/styles.css"
-import "@/app/home/assets/scss/styles.scss"
-import expense from "@/app/home/assets/img/expense.png"
-import main from "@/app/home/assets/js/main.js"
+import Image from 'next/image';
+import Head from 'next/head';
+import Script from 'next/script';
+import "@/app/home/assets/css/styles.css";
+import "@/app/home/assets/scss/styles.scss";
+import expense from "@/app/home/assets/img/expense.png";
+import main from "@/app/home/assets/js/main.js";
 
 const HomePage = () => {
   return (
     <div>
       <Head>
         <title>MyApp</title>
-        <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons/ionicons.esm.js" type="module" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.2.4/gsap.min.js" />
       </Head>
+
+      <Script
+        src="https://unpkg.com/ionicons@5.0.0/dist/ionicons/ionicons.esm.js"
+        type="module"
+        strategy="beforeInteractive"
+      />
+      <Script
+        src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.2.4/gsap.min.js"
+        strategy="beforeInteractive"
+      />
+      <Script
+        src={main}
+        strategy="afterInteractive"
+      />
 
       <header className="header">
         <nav className="nav container">
@@ -41,14 +54,10 @@ const HomePage = () => {
           </div>
           <div className="home__information">
             <h2 className="home__subtitle"><p>Expense Tracker</p></h2>
-            <p className="home__description"> A collaborative personal finance application :)</p>
+            <p className="home__description">A collaborative personal finance application :)</p>
           </div>
-          
         </div>
       </main>
-
-      <script src={main} />
-
     </div>
   );
 }

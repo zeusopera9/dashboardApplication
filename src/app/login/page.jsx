@@ -58,7 +58,7 @@ const LoginPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <span>Don't have an account? <Link href="/register" className={styles.registerLink}>Register Here</Link></span>
+        <span>Don&apos;t have an account? <Link href="/register" className={styles.registerLink}>Register Here</Link></span>
         <button type='submit'>Login</button>
       </form>
     </div>
