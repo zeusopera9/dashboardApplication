@@ -11,9 +11,8 @@ const AiChat = () => {
     const [chat,setChat] = useState(null);
     const [error, setError] = useState(null);
 
-    const API_KEY = "AIzaSyAiI7S9eVXJyI6_2vxKqkWIblRZzrWi2og";
     const MODEL_NAME = 'gemini-1.0-pro-001';
-    const genAI = new GoogleGenerativeAI(API_KEY);
+    const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
     const generationConfig={
         temperature: 0.9,
