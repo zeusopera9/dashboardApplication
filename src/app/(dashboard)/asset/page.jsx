@@ -5,6 +5,7 @@ import AssetForm from '../../ui/dashboard/assets/form';
 import ViewAssets from '../../ui/dashboard/assets/ViewAssets';
 import styles from '../../ui/dashboard/assets/assetPage.module.css';
 
+
 const Page = () => {
   const [showViewAsset, setShowViewAsset] = useState(false);
   const [showForm, setShowForm] = useState(false);
